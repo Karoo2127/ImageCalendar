@@ -1,0 +1,37 @@
+/* 画像中央寄 */
+p.img_center {
+    text-align: center;
+}
+
+/* 曜日のスタイル */
+/* // 当月以外の日（月カレンダーに一緒に表示される前後の月） */
+th.fc-day-other .fc-col-header-cell-cushio {
+    color: grey;
+}
+
+/* 土曜日 */
+th.fc-day-sat .fc-col-header-cell-cushion {
+    color: blue;
+}
+
+th.fc-day-sat {
+    background-color: #eaf4ff;
+}
+
+td.fc-day-sat {
+    background-color: #eaf4ff;
+}
+
+
+/* 日曜日 */
+th.fc-day-sun .fc-col-header-cell-cushion{
+    color: red;
+}
+
+th.fc-day-sun {
+    background-color: #ffeaea;
+}
+
+td.fc-day-sun {
+    background-color: #ffeaea;
+}

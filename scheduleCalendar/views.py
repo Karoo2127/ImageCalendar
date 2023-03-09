@@ -65,6 +65,25 @@ def add_event(request):
     return HttpResponse("")
 
 
+# def delete_event(request, event_id):
+#     """
+#     イベント削除
+#     """
+
+#     if request.method == "GET":
+#         # GETは対応しない
+#         raise Http404()
+
+#     # イベントの取得
+#     event = Event.objects.get(id=event_id)
+
+#     # 削除処理
+#     event.delete()
+
+#     # 空を返却
+#     return HttpResponse("")
+
+
 def get_events(request):
     """
     イベントの取得
