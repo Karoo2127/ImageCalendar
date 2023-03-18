@@ -10,5 +10,6 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("add/", views.add_event, name="add_event"),
     path("delete/", views.delete_event, name="delete_event"),
+    path("generate/", views.generate_event_img, name="generate_event_img"),
     path("list/", views.get_events, name="get_events"),
 ]

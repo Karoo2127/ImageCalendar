@@ -16,6 +16,63 @@ from django.http import HttpResponse
 # Create your views here.
 
 
+# 環境変数の設定設定
+import io
+import os
+from PIL import Image
+from stability_sdk import client
+import stability_sdk.interfaces.gooseai.generation.generation_pb2 as generation
+from datetime import datetime
+os.environ['STABILITY_HOST'] = 'grpc.stability.ai:443'
+os.environ['STABILITY_KEY'] = 'sk-vTOj1z5a1QAdRpwHgKIHQv4izeJrMTASkaJtFLi6iCIUUpou'
+
+
+class MonthSeason:
+    def __init__(self):
+        self.month_to_season = {
+            1: "Winter",
+            2: "Winter",
+            3: "Spring",
+            4: "Spring",
+            5: "Spring",
+            6: "Rain",
+            7: "Summer",
+            8: "Summer",
+            9: "Autumn",
+            10: "Autumn",
+            11: "Autumn",
+            12: "Winter",
+        }
+
+    def get_season(self, month):
+        if month in self.month_to_season:
+            return self.month_to_season[month]
+        else:
+            raise ValueError("Invalid month. Month should be between 1 and 12.")
+
+def image_generate(sentence: str):
+    # APIインタフェースの準備
+    stability_api = client.StabilityInference(
+        key=os.environ['STABILITY_KEY'], 
+        verbose=True,
+    )
+
+    # テキストからの画像生成
+    answers = stability_api.generate(
+        prompt=sentence,
+        # prompt="white cat",
+    )
+
+    # 結果の出力
+    for resp in answers:
+        for artifact in resp.artifacts:
+            if artifact.finish_reason == generation.FILTER:
+                print("NSFW")
+            if artifact.type == generation.ARTIFACT_IMAGE:
+                img = Image.open(io.BytesIO(artifact.binary))
+                img.save('./scheduleCalendar/static/image/output.png')
+
+
 def index(request):
     """
     カレンダー画面
@@ -100,6 +157,33 @@ def delete_event(request):
     # 空を返却
     return HttpResponse("")
 
+
+def generate_event_img(request):
+    """
+    イベントの画像生成
+    """
+
+    if request.method == "GET":
+        # POST以外は対応しない
+        raise Http404()
+
+    # JSONの解析
+    datas = json.loads(request.body)
+
+    # イベント名の取得
+    event_name = datas.get("event_name")
+
+    if not event_name or event_name is None:
+        # event_name が空の場合、エラーレスポンスを返す
+        return HttpResponse("event_name is missing or invalid")
+
+    # イベント名の画像を生成
+    image_generate(event_name)
+
+    # 空を返却
+    return HttpResponse("")
+
+
 def get_events(request):
     """
     イベントの取得
@@ -143,5 +227,17 @@ def get_events(request):
                 "end": event.end_date,
             }
         )
+
+    # 月-季節を取得
+    month_season = MonthSeason()
+    if formatted_start_date[-2:] == "01":
+        current_month = int(formatted_start_date[5:7])
+    else:
+        current_month = int(formatted_start_date[5:7]) + 1
+    if current_month == 13:
+        current_month = 1
+
+    # カレンダーの表示する月の季節の画像を生成
+    # image_generate(month_season.get_season(current_month))
 
     return JsonResponse(list, safe=False)

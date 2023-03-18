@@ -74,13 +74,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         },
 
-        // イベントの削除
+        // イベントをクリック、イベントの削除またはイベントの画像生成表示
         eventClick: function (info) {
             if (confirm("イベントを削除しますか？")) {
                 // イベント削除処理の呼び出し
                 axios
                   .post("/sc/delete/", {
                     event_id: info.event.extendedProps.event_id,
+                    event_name: info.event.title
                   })
                   .then(() => {
                     // イベントの削除
@@ -90,10 +91,31 @@ document.addEventListener('DOMContentLoaded', function () {
                     // エラー処理
                     alert("削除に失敗しました");
                   });
-              }
+            }
+            else{
+                // イベントの画像生成の呼び出し
+                var eventImage = document.getElementById("event-image");
+                var currentSrc = eventImage.getAttribute("src");
+                var cacheBuster = "?t=" + new Date().getTime();
+                axios
+                  .post("/sc/generate/", {
+                    event_name: info.event.title
+                  })
+                  .then(() => {
+                    // イベント画像の更新
+                    eventImage.setAttribute("src", currentSrc + cacheBuster);
+                  })
+                  .catch(() => {
+                    // エラー処理
+                    alert("イベントの画像生成に失敗しました");
+                  });
+            }
         },
 
         events: function (info, successCallback, failureCallback) {
+            var eventImage = document.getElementById("event-image");
+            var currentSrc = eventImage.getAttribute("src");
+            var cacheBuster = "?t=" + new Date().getTime();
             axios
                 .post("/sc/list/", {
                     start_date: info.start.valueOf(),
@@ -101,13 +123,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .then((response) => {
                     calendar.removeAllEvents();
+                    eventImage.setAttribute("src", currentSrc + cacheBuster);
                     successCallback(response.data);
                 })
                 .catch(() => {
                     // バリデーションエラーなど
                     alert("登録に失敗しました");
-                });          
-        },    
+                });
+        },
     });
 
     calendar.render();
