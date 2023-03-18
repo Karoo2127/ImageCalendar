@@ -7,6 +7,8 @@ http://localhost:8000/sc/
 phpMyAdmin
 http://localhost:8080/
 
+・Django
+Python Webフレームワーク
 
 ・FullCalendar
 カレンダーを表示させることができるjQueryのオープンソースプラグイン
