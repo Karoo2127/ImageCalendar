@@ -238,6 +238,6 @@ def get_events(request):
         current_month = 1
 
     # カレンダーの表示する月の季節の画像を生成
-    # image_generate(month_season.get_season(current_month))
+    image_generate(month_season.get_season(current_month))
 
     return JsonResponse(list, safe=False)
