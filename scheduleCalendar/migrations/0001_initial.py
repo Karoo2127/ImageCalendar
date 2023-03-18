@@ -18,6 +18,7 @@ class Migration(migrations.Migration):
                 ('start_date', models.DateField()),
                 ('end_date', models.DateField()),
                 ('event_name', models.CharField(max_length=200)),
+                ('event_id', models.BigAutoField()),
             ],
         ),
     ]

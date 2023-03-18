@@ -1,3 +1,6 @@
+# Djangoアプリケーションのロジックを実装する場所です。
+# ビュー関数は、リクエストを受け取り、それに応じて必要な処理を実行し、HTTPレスポンスを返します。
+# ビュー関数は、HTMLテンプレートをレンダリングしたり、データベースにアクセスしたり、外部APIにアクセスしたりすることができます。
 from django.template import loader
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
@@ -46,6 +49,7 @@ def add_event(request):
     start_date = datas["start_date"]
     end_date = datas["end_date"]
     event_name = datas["event_name"]
+    event_id = datas["event_id"]
 
     # 日付に変換。JavaScriptのタイムスタンプはミリ秒なので秒に変換
     formatted_start_date = time.strftime(
@@ -58,31 +62,43 @@ def add_event(request):
         event_name=str(event_name),
         start_date=formatted_start_date,
         end_date=formatted_end_date,
+        event_id=int(event_id),
     )
     event.save()
 
+    # イベントIDを返却
+    return JsonResponse({"event_id": int(event_id)})
+
+
+def delete_event(request):
+    """
+    イベント削除
+    """
+
+    if request.method == "GET":
+        # POST以外は対応しない
+        raise Http404()
+
+    # JSONの解析
+    datas = json.loads(request.body)
+
+    # イベントIDの取得
+    event_id = datas.get("event_id")
+
+    if not event_id or event_id is None:
+        # event_idが空の場合、エラーレスポンスを返す
+        return HttpResponse("event_id is missing or invalid")
+
+    # イベントを検索し、削除する
+    try:
+        event = Event.objects.get(event_id=event_id)
+        event.delete()
+    except Event.DoesNotExist:
+        # イベントが存在しない場合
+        raise Http404()
+
     # 空を返却
     return HttpResponse("")
-
-
-# def delete_event(request, event_id):
-#     """
-#     イベント削除
-#     """
-
-#     if request.method == "GET":
-#         # GETは対応しない
-#         raise Http404()
-
-#     # イベントの取得
-#     event = Event.objects.get(id=event_id)
-
-#     # 削除処理
-#     event.delete()
-
-#     # 空を返却
-#     return HttpResponse("")
-
 
 def get_events(request):
     """
